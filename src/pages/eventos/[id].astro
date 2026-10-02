@@ -1,0 +1,91 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import YouTube from '../../components/YouTube.astro';
+import Galeria from '../../components/Galeria.astro';
+import { url, fechaLarga, diaSemana, dia, mes, colorPorCategoria, hoySantiago, iso } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const eventos = await getCollection('eventos', ({ data }) => !data.borrador);
+  return eventos.map((evento) => ({ params: { id: evento.id }, props: { evento } }));
+}
+const { evento } = Astro.props;
+const d = evento.data;
+const { Content } = await render(evento);
+const pasado = iso(d.fecha) < hoySantiago();
+const color = colorPorCategoria[d.categoria] ?? 'amarillo';
+---
+<Base title={d.titulo} description={d.resumen} image={d.portada.src}>
+  <article class:list={['ficha', `c-${color}`]}>
+    <div class="portada">
+      <Image src={d.portada} alt="" widths={[800, 1400, 2000]} sizes="100vw" quality={80} format="webp" loading="eager" fetchpriority="high" />
+    </div>
+    <div class="wrap cabeza">
+      <a class="mas volver" href={url('/eventos/')}>← Eventos</a>
+      <div class="titular">
+        <span class="fecha"><span class="d">{dia(d.fecha)}</span><span class="m">{mes(d.fecha)}</span></span>
+        <div>
+          <span class="label cat">{d.categoria}{pasado && ' · Realizado'}</span>
+          <h1>{d.titulo}</h1>
+        </div>
+      </div>
+      <dl class="datos">
+        <div><dt class="label">Fecha</dt><dd>{diaSemana(d.fecha)} {fechaLarga(d.fecha)}</dd></div>
+        {d.hora && <div><dt class="label">Hora</dt><dd>{d.hora} hrs</dd></div>}
+        <div><dt class="label">Entrada</dt><dd>{d.gratuito ? 'Liberada' : 'Con entrada'}</dd></div>
+      </dl>
+      {!pasado && d.entradas && (
+        <a class="btn solido" href={d.entradas} target="_blank" rel="noopener">Comprar entradas</a>
+      )}
+    </div>
+
+    <div class="wrap cuerpo">
+      <p class="resumen">{d.resumen}</p>
+      <div class="prosa"><Content /></div>
+    </div>
+
+    {d.youtube && (
+      <section class="wrap seccion">
+        <h2 class="titulo-seccion">Video</h2>
+        <div class="video"><YouTube video={d.youtube} titulo={d.titulo} /></div>
+      </section>
+    )}
+
+    {d.galeria.length > 0 && (
+      <section class="wrap seccion">
+        <div class="cabecera">
+          <h2 class="titulo-seccion">Galería</h2>
+          <span class="label">{d.galeria.length} fotos</span>
+        </div>
+        <Galeria fotos={d.galeria} titulo={d.titulo} />
+      </section>
+    )}
+  </article>
+</Base>
+
+<style>
+  .portada { position: relative; height: clamp(260px, 52vw, 560px); overflow: hidden; }
+  .portada img { width: 100%; height: 100%; object-fit: cover; }
+  .portada::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg), transparent 60%); }
+  .cabeza { position: relative; margin-top: -72px; display: grid; gap: 22px; justify-items: start; }
+  .volver { margin-bottom: 4px; }
+  .titular { display: flex; gap: 20px; align-items: end; flex-wrap: wrap; }
+  .fecha {
+    display: grid; justify-items: center; min-width: 84px; padding: 12px 14px 10px; border-radius: 8px;
+    background: var(--c); color: #0a120e; line-height: .9;
+  }
+  .d { font-family: var(--display); font-weight: 900; font-size: 3rem; }
+  .m { font-family: var(--label); font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: .85rem; }
+  .cat { color: var(--c); }
+  h1 { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: clamp(2.4rem, 7vw, 5.2rem); line-height: .9; margin: 4px 0 0; max-width: 16ch; }
+  .datos { display: flex; flex-wrap: wrap; gap: 12px 40px; margin: 0; }
+  .datos div { display: grid; gap: 2px; }
+  .datos dd { margin: 0; font-size: 1.1rem; }
+  .datos dd::first-letter { text-transform: uppercase; }
+  .cuerpo { padding-block: 40px 8px; display: grid; gap: 20px; }
+  .resumen { font-size: 1.3rem; line-height: 1.45; max-width: 52ch; margin: 0; color: #dfe4da; }
+  .seccion { padding-block: 48px 0; display: grid; gap: 20px; }
+  .video { width: 100%; max-width: 1000px; }
+  .cabecera { margin-bottom: 0; }
+</style>

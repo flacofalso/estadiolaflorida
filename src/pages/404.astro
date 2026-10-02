@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/utils';
+---
+<Base title="Página no encontrada">
+  <section class="bloque">
+    <div class="wrap">
+      <span class="label">Error 404</span>
+      <h1 class="titulo-seccion" style="font-size:clamp(3rem,9vw,6rem);margin:6px 0 16px">Fuera de la cancha</h1>
+      <p style="color:var(--muted);max-width:48ch">La página que buscas no existe o cambió de dirección.</p>
+      <p><a class="btn solido" href={url('/')}>Volver al inicio</a></p>
+    </div>
+  </section>
+</Base>

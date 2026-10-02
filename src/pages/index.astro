@@ -1,0 +1,94 @@
+---
+import { getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Recorrido from '../components/Recorrido.astro';
+import EventoCard from '../components/EventoCard.astro';
+import NoticiaItem from '../components/NoticiaItem.astro';
+import YouTube from '../components/YouTube.astro';
+import { eventosOrdenados, noticiasOrdenadas } from '../lib/contenido';
+import { url } from '../lib/utils';
+
+const inicio = await getEntry('sitio', 'inicio');
+if (!inicio) throw new Error('Falta src/content/sitio/inicio.yml');
+const s = inicio.data;
+const { proximos, pasados } = await eventosOrdenados();
+const destacados = proximos.length ? proximos.slice(0, 3) : pasados.slice(0, 3);
+const noticias = (await noticiasOrdenadas()).slice(0, 3);
+---
+<Base transparentHeader image={s.poster.src}>
+  <Hero titulo={s.titulo} bajada={s.bajada} poster={s.poster} />
+  <Recorrido titulo={s.recorrido_titulo} fotos={s.recorrido} />
+
+  <section class="bloque" id="eventos">
+    <div class="wrap">
+      <div class="cabecera">
+        <h2 class="titulo-seccion">{proximos.length ? 'Próximos eventos' : 'Eventos recientes'}</h2>
+        <a class="mas" href={url('/eventos/')}>Ver todos los eventos →</a>
+      </div>
+      <div class="eventos">
+        {destacados.map((e) => <EventoCard evento={e} pasado={!proximos.length} />)}
+      </div>
+    </div>
+  </section>
+
+  {s.video_destacado && (
+    <section class="bloque video" style="padding-top:0">
+      <div class="wrap">
+        <div class="cabecera"><h2 class="titulo-seccion">En video</h2></div>
+        <YouTube video={s.video_destacado} titulo="Video destacado del estadio" />
+      </div>
+    </section>
+  )}
+
+  <section class="bloque" style="padding-top:0">
+    <div class="wrap">
+      <div class="cabecera">
+        <h2 class="titulo-seccion">Noticias</h2>
+        <a class="mas" href={url('/noticias/')}>Ver todas las noticias →</a>
+      </div>
+      <div class="noticias">
+        {noticias.map((n) => <NoticiaItem noticia={n} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="bloque visita">
+    <div class="wrap">
+      <div class="cabecera"><h2 class="titulo-seccion">Planifica tu visita</h2></div>
+      <div class="tiles">
+        <a class="tile c-amarillo" href={url('/visitanos/#como-llegar')}>
+          <span class="label">01</span><h3>Cómo llegar</h3><p>Dirección, transporte público y estacionamientos.</p>
+        </a>
+        <a class="tile c-terracota" href={url('/visitanos/#accesos')}>
+          <span class="label">02</span><h3>Accesos y horarios</h3><p>Puertas habilitadas y apertura según cada evento.</p>
+        </a>
+        <a class="tile c-verde" href={url('/visitanos/#reglamento')}>
+          <span class="label">03</span><h3>Qué puedes ingresar</h3><p>Objetos permitidos y prohibidos en el recinto.</p>
+        </a>
+        <a class="tile c-azul" href={url('/visitanos/#contacto')}>
+          <span class="label">04</span><h3>Contacto y arriendo</h3><p>Uso del estadio por clubes, colegios y organizaciones.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .eventos { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  .noticias { border-top: 1px solid var(--line); }
+  .video .wrap { max-width: 1000px; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .tile {
+    display: grid; gap: 10px; align-content: start; min-width: 0;
+    padding: 24px 22px 26px; border-radius: var(--radius); text-decoration: none;
+    background: var(--surface); border-top: 4px solid var(--c);
+    transition: background .2s ease;
+  }
+  .tile:hover { background: var(--surface-2); }
+  .tile .label { color: var(--c); }
+  .tile h3 { margin: 0; font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 1.7rem; line-height: .95; }
+  .tile p { margin: 0; color: var(--muted); font-size: .98rem; }
+  @media (max-width: 960px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .tiles { grid-template-columns: 1fr; } }
+</style>

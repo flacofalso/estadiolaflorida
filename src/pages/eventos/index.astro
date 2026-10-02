@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import EventoCard from '../../components/EventoCard.astro';
+import { eventosOrdenados } from '../../lib/contenido';
+const { proximos, pasados } = await eventosOrdenados();
+---
+<Base title="Eventos" description="Conciertos, partidos y actividades municipales en el Estadio Bicentenario de La Florida.">
+  <section class="bloque">
+    <div class="wrap">
+      <span class="label">Cartelera</span>
+      <h1 class="titulo-seccion grande">Eventos</h1>
+
+      <h2 class="sub">Próximos</h2>
+      {proximos.length ? (
+        <div class="grilla">{proximos.map((e) => <EventoCard evento={e} />)}</div>
+      ) : (
+        <p class="vacio">No hay eventos programados por ahora. Revisa las noticias para enterarte de lo que viene.</p>
+      )}
+
+      {pasados.length > 0 && (
+        <>
+          <h2 class="sub">Realizados</h2>
+          <div class="grilla">{pasados.map((e) => <EventoCard evento={e} pasado />)}</div>
+        </>
+      )}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .grande { font-size: clamp(3rem, 9vw, 6rem); margin-top: 6px; }
+  .sub { font-family: var(--label); text-transform: uppercase; letter-spacing: .14em; font-size: 1rem; color: var(--muted); margin: 48px 0 18px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .grilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+  .vacio { color: var(--muted); }
+</style>

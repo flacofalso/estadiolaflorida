@@ -1,0 +1,62 @@
+---
+import { youtubeId } from '../lib/utils';
+
+interface Props { video: string; titulo?: string }
+const { video, titulo = 'Video' } = Astro.props;
+const id = youtubeId(video);
+// La miniatura viene de i.ytimg.com (no instala cookies). El reproductor se carga
+// solo al hacer clic y desde youtube-nocookie.com (privacidad mejorada).
+---
+{id && (
+  <div class="yt" data-yt={id} data-titulo={titulo}>
+    <img
+      src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`}
+      srcset={`https://i.ytimg.com/vi/${id}/mqdefault.jpg 320w, https://i.ytimg.com/vi/${id}/hqdefault.jpg 480w`}
+      sizes="(max-width: 900px) 100vw, 900px"
+      alt=""
+      loading="lazy"
+      decoding="async"
+      width="480"
+      height="360"
+    />
+    <button type="button" class="play" aria-label={`Reproducir: ${titulo}`}>
+      <svg viewBox="0 0 68 48" aria-hidden="true"><path d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8.1 34 0 34 0S12.2.1 6.9 1.6C4 2.4 2.2 4.8 1.5 7.7.1 13 0 24 0 24s.1 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 47.9 34 48 34 48s21.8-.1 27.1-1.6c2.9-.8 4.7-3.2 5.4-6.2C67.9 35 68 24 68 24s-.1-11-1.5-16.3z" fill="#c4302b"/><path d="M45 24 27 14v20" fill="#fff"/></svg>
+    </button>
+    <span class="aviso">Al reproducir se conecta con YouTube</span>
+  </div>
+)}
+
+<style>
+  .yt {
+    position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: var(--radius);
+    overflow: hidden; background: #000;
+  }
+  .yt img { width: 100%; height: 100%; object-fit: cover; opacity: .85; transition: opacity .2s ease; }
+  .yt:hover img { opacity: 1; }
+  .play {
+    position: absolute; inset: 0; margin: auto; width: 76px; height: 54px;
+    background: none; border: 0; padding: 0; cursor: pointer;
+  }
+  .play svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 14px rgba(0,0,0,.4)); }
+  .aviso {
+    position: absolute; left: 12px; bottom: 10px; font-family: var(--label); font-size: .75rem;
+    letter-spacing: .08em; text-transform: uppercase; background: rgba(10,18,14,.75);
+    padding: 4px 8px; border-radius: 4px; color: var(--muted);
+  }
+  .yt :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-yt]').forEach((box) => {
+    box.querySelector('button')?.addEventListener('click', () => {
+      const id = box.dataset.yt!;
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
+      f.title = box.dataset.titulo || 'Video de YouTube';
+      f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      f.allowFullscreen = true;
+      f.referrerPolicy = 'strict-origin-when-cross-origin';
+      box.replaceChildren(f);
+    });
+  });
+</script>

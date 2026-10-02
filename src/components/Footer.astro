@@ -1,0 +1,61 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo/logo-color-fondo-oscuro.png';
+import logoMuni from '../assets/logo/municipalidad-blanco.png';
+import { url } from '../lib/utils';
+const anio = new Date().getFullYear();
+---
+<footer class="pie">
+  <div class="franja" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  <div class="wrap grilla">
+    <div class="col marca">
+      <Image src={logo} alt="Estadio Bicentenario Municipal de La Florida" width={520} height={Math.round(520 * logo.height / logo.width)} />
+    </div>
+    <div class="col">
+      <span class="label">Explora</span>
+      <ul>
+        <li><a href={url('/el-estadio/')}>El Estadio</a></li>
+        <li><a href={url('/eventos/')}>Eventos</a></li>
+        <li><a href={url('/noticias/')}>Noticias</a></li>
+        <li><a href={url('/visitanos/')}>Visítanos</a></li>
+      </ul>
+    </div>
+    <div class="col">
+      <span class="label">Contacto</span>
+      <ul>
+        <li>Dirección por confirmar, La Florida</li>
+        <li>Correo por confirmar</li>
+        <li><a href="https://www.laflorida.cl" rel="noopener">Municipalidad de La Florida</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap legal">
+    <a class="muni" href="https://www.laflorida.cl" rel="noopener">
+      <Image src={logoMuni} alt="Municipalidad de La Florida" width={360} height={Math.round(360 * logoMuni.height / logoMuni.width)} />
+    </a>
+    <p class="credito">Sitio web creado y administrado por la Dirección de Comunicaciones de la Municipalidad de La Florida</p>
+    <span class="copy">© {anio}</span>
+  </div>
+</footer>
+
+<style>
+  .pie { margin-top: clamp(40px, 6vw, 80px); background: var(--surface); }
+  .grilla {
+    display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px;
+    padding-block: 56px 40px;
+  }
+  .marca img { width: min(100%, 300px); height: auto; }
+  .col { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; color: var(--muted); }
+  a { text-decoration: none; color: var(--fg); }
+  a:hover { color: var(--flood); }
+  .legal {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px;
+    padding-block: 24px calc(28px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--line); color: var(--muted); font-size: .92rem;
+  }
+  .muni img { width: 150px; height: auto; }
+  .credito { margin: 0; flex: 1 1 280px; max-width: 46ch; min-width: 0; }
+  .copy { margin-left: auto; font-variant-numeric: tabular-nums; }
+  @media (max-width: 760px) { .grilla { grid-template-columns: 1fr; } }
+</style>

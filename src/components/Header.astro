@@ -1,0 +1,108 @@
+---
+import { Image } from 'astro:assets';
+import icono from '../assets/logo/icono-color-fondo-oscuro.png';
+import { url } from '../lib/utils';
+
+interface Props { transparent?: boolean }
+const { transparent = false } = Astro.props;
+const path = Astro.url.pathname;
+const items = [
+  { href: '/el-estadio/', label: 'El Estadio' },
+  { href: '/eventos/', label: 'Eventos' },
+  { href: '/noticias/', label: 'Noticias' },
+  { href: '/visitanos/', label: 'Visítanos' },
+];
+const activo = (href: string) => path.startsWith(url(href).replace(/\/$/, ''));
+---
+<header class:list={['sitio', { transparente: transparent }]} data-header>
+  <div class="wrap fila">
+    <a class="marca" href={url('/')} aria-label="Arena La Florida, inicio">
+      <Image src={icono} alt="" width={120} height={Math.round(120 * icono.height / icono.width)} loading="eager" />
+      <span class="nombre">Arena<br />La Florida</span>
+    </a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-principal" data-menu-btn>
+      <span class="sr-only">Abrir menú</span>
+      <span class="barras" aria-hidden="true"></span>
+    </button>
+    <nav id="menu-principal" class="menu" aria-label="Principal" data-menu>
+      {items.map((i) => (
+        <a href={url(i.href)} aria-current={activo(i.href) ? 'page' : undefined}>{i.label}</a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<style>
+  .sitio {
+    position: sticky; top: 0; z-index: 60;
+    padding-top: env(safe-area-inset-top, 0px);
+    background: rgba(10, 18, 14, .92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    transition: background .3s ease, border-color .3s ease;
+  }
+  .sitio.transparente {
+    position: fixed; left: 0; right: 0;
+    background: linear-gradient(to bottom, rgba(10,18,14,.75), rgba(10,18,14,0));
+    backdrop-filter: none; border-color: transparent;
+  }
+  .sitio.transparente.solido {
+    background: rgba(10, 18, 14, .92); backdrop-filter: blur(10px); border-color: var(--line);
+  }
+  .fila { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-block: 12px; }
+  .marca { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .marca img { width: 58px; height: auto; }
+  .nombre {
+    font-family: var(--display); font-weight: 800; text-transform: uppercase;
+    font-size: 1.15rem; line-height: .92; letter-spacing: .03em;
+  }
+  .menu { display: flex; gap: clamp(16px, 2.4vw, 32px); }
+  .menu a {
+    font-family: var(--label); text-transform: uppercase; letter-spacing: .1em; font-size: .95rem;
+    text-decoration: none; padding-block: 6px; border-bottom: 2px solid transparent;
+  }
+  .menu a:hover { color: var(--flood); }
+  .menu a[aria-current='page'] { border-color: var(--amarillo); }
+  .menu-btn { display: none; }
+
+  @media (max-width: 780px) {
+    .menu-btn {
+      display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line);
+      border-radius: 999px; background: transparent; color: var(--fg); cursor: pointer;
+    }
+    .barras, .barras::before, .barras::after {
+      display: block; width: 18px; height: 2px; background: currentColor; position: relative; transition: transform .2s ease;
+    }
+    .barras::before, .barras::after { content: ''; position: absolute; left: 0; }
+    .barras::before { top: -6px; } .barras::after { top: 6px; }
+    [aria-expanded='true'] .barras { background: transparent; }
+    [aria-expanded='true'] .barras::before { transform: translateY(6px) rotate(45deg); }
+    [aria-expanded='true'] .barras::after { transform: translateY(-6px) rotate(-45deg); }
+    .menu {
+      position: absolute; left: 0; right: 0; top: 100%;
+      flex-direction: column; gap: 0; padding: 8px var(--gutter) 20px;
+      background: var(--bg); border-bottom: 1px solid var(--line);
+      display: none;
+    }
+    .menu.abierto { display: flex; }
+    .menu a { padding-block: 14px; border-bottom: 1px solid var(--line); font-size: 1.1rem; }
+    .menu a[aria-current='page'] { color: var(--amarillo); border-color: var(--line); }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  btn?.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    menu?.classList.toggle('abierto', !open);
+    header?.classList.toggle('solido', !open || window.scrollY > 40);
+  });
+  if (header?.classList.contains('transparente')) {
+    const update = () => header.classList.toggle('solido', window.scrollY > 40 || menu?.classList.contains('abierto') === true);
+    addEventListener('scroll', update, { passive: true });
+    update();
+  }
+</script>

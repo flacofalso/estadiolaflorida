@@ -1,0 +1,66 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { url, dia, mes, colorPorCategoria } from '../lib/utils';
+
+interface Props { evento: CollectionEntry<'eventos'>; pasado?: boolean }
+const { evento, pasado = false } = Astro.props;
+const d = evento.data;
+const color = colorPorCategoria[d.categoria] ?? 'amarillo';
+const href = url(`/eventos/${evento.id}/`);
+---
+<article class:list={['evento', `c-${color}`, { pasado }]}>
+  <a class="img" href={href} tabindex="-1" aria-hidden="true">
+    <Image src={d.portada} alt="" widths={[480, 800]} sizes="(max-width: 700px) 100vw, 400px" quality={74} format="webp" loading="lazy" />
+    <span class="fecha"><span class="d">{dia(d.fecha)}</span><span class="m">{mes(d.fecha)}</span></span>
+  </a>
+  <div class="cuerpo">
+    <span class="label cat">{d.categoria}{d.hora && ` · ${d.hora} hrs`}</span>
+    <h3><a href={href}>{d.titulo}</a></h3>
+    <p>{d.resumen}</p>
+    <div class="pie">
+      {pasado ? (
+        <span class="chip">{d.galeria.length > 0 ? `${d.galeria.length} fotos` : 'Realizado'}</span>
+      ) : d.gratuito ? (
+        <span class="chip gratis">Entrada liberada</span>
+      ) : (
+        <span class="chip">Con entrada</span>
+      )}
+      {!pasado && d.entradas ? (
+        <a class="mas" href={d.entradas} target="_blank" rel="noopener">Entradas →</a>
+      ) : (
+        <a class="mas" href={href}>{pasado ? 'Ver fotos →' : 'Más info →'}</a>
+      )}
+    </div>
+  </div>
+</article>
+
+<style>
+  .evento {
+    display: grid; grid-template-rows: auto 1fr; min-width: 0;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+  }
+  .img { position: relative; display: block; aspect-ratio: 16 / 10; max-width: 100%; overflow: hidden; }
+  .img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+  .evento:hover .img img { transform: scale(1.04); }
+  .fecha {
+    position: absolute; left: 12px; top: 12px; display: grid; justify-items: center;
+    min-width: 58px; padding: 8px 10px 7px; border-radius: 6px;
+    background: var(--c); color: #0a120e; line-height: .9;
+  }
+  .d { font-family: var(--display); font-weight: 900; font-size: 1.9rem; font-variant-numeric: tabular-nums; }
+  .m { font-family: var(--label); font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; }
+  .cuerpo { display: grid; gap: 8px; padding: 18px 20px 20px; align-content: start; }
+  .cat { color: var(--c); }
+  h3 { margin: 0; font-size: 1.2rem; line-height: 1.25; font-weight: 600; }
+  h3 a { text-decoration: none; }
+  h3 a:hover { color: var(--flood); }
+  p { margin: 0; color: var(--muted); font-size: .98rem; }
+  .pie { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; }
+  .chip {
+    font-family: var(--label); text-transform: uppercase; letter-spacing: .1em; font-size: .74rem;
+    padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
+  }
+  .chip.gratis { border-color: var(--verde); color: #b9d47e; }
+  .pasado .img img { filter: saturate(.75); }
+</style>

@@ -1,0 +1,60 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import logo from '../assets/logo/logo-color-fondo-oscuro.png';
+import foto from '../assets/fotos/recorrido/recorrido-01.jpg';
+---
+<Base title="El Estadio" description="Historia, datos e instalaciones del Estadio Bicentenario Municipal de La Florida.">
+  <section class="bloque">
+    <div class="wrap intro">
+      <div>
+        <span class="label">El recinto</span>
+        <h1 class="titulo-seccion grande">El Estadio</h1>
+        <p class="lead">El Estadio Bicentenario Municipal de La Florida es el principal recinto deportivo y de espectáculos de la comuna. <em>(Texto por completar.)</em></p>
+      </div>
+      <Image class="logo" src={logo} alt="Estadio Bicentenario Municipal de La Florida" width={700} />
+    </div>
+  </section>
+
+  <section class="wrap datos" aria-label="Datos del estadio">
+    <div class="dato c-amarillo"><span class="label">Capacidad</span><strong>Por confirmar</strong><span>espectadores</span></div>
+    <div class="dato c-terracota"><span class="label">Inauguración</span><strong>Por confirmar</strong><span>año</span></div>
+    <div class="dato c-verde"><span class="label">Cancha</span><strong>Por confirmar</strong><span>tipo de pasto y medidas</span></div>
+    <div class="dato c-azul"><span class="label">Pista atlética</span><strong>Por confirmar</strong><span>carriles</span></div>
+  </section>
+
+  <section class="bloque">
+    <div class="wrap dos">
+      <Image class="foto" src={foto} alt="" widths={[600, 1000]} sizes="(max-width: 800px) 100vw, 50vw" quality={78} format="webp" />
+      <div class="prosa">
+        <h2>Historia</h2>
+        <p>Aquí va la historia del estadio: su construcción en el marco del Bicentenario, los hitos deportivos y los grandes eventos que ha recibido.</p>
+        <h2>Instalaciones</h2>
+        <ul>
+          <li>Cancha de fútbol</li>
+          <li>Pista atlética</li>
+          <li>Tribunas</li>
+          <li>Camarines</li>
+          <li>Otras instalaciones por confirmar</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .intro { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; }
+  .grande { font-size: clamp(3rem, 9vw, 6rem); margin: 6px 0 18px; }
+  .lead { font-size: 1.25rem; max-width: 48ch; margin: 0; color: #dfe4da; }
+  .logo { width: 100%; height: auto; }
+  .datos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .dato { display: grid; gap: 4px; padding: 22px; background: var(--surface); border-radius: var(--radius); border-top: 4px solid var(--c); min-width: 0; }
+  .dato strong { font-family: var(--display); font-weight: 800; font-size: 2rem; line-height: 1; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+  .dato > span:last-child { color: var(--muted); font-size: .95rem; }
+  .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  .foto { width: 100%; border-radius: var(--radius); }
+  .prosa h2:first-child { margin-top: 0; }
+  @media (max-width: 900px) { .datos { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 800px) { .intro, .dos { grid-template-columns: 1fr; } }
+  @media (max-width: 460px) { .datos { grid-template-columns: 1fr; } }
+</style>

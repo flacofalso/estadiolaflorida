@@ -1,0 +1,37 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { url, fechaLarga } from '../lib/utils';
+
+interface Props { noticia: CollectionEntry<'noticias'> }
+const { noticia } = Astro.props;
+const d = noticia.data;
+---
+<a class="noticia" href={url(`/noticias/${noticia.id}/`)}>
+  <Image class="thumb" src={d.portada} alt="" widths={[240, 400]} sizes="160px" quality={72} format="webp" loading="lazy" />
+  <div class="texto">
+    <time class="label" datetime={d.fecha.toISOString().slice(0, 10)}>{fechaLarga(d.fecha)}</time>
+    <h3>{d.titulo}</h3>
+    <p>{d.resumen}</p>
+  </div>
+  <span class="flecha" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .noticia {
+    display: grid; grid-template-columns: 160px 1fr auto; gap: 24px; align-items: center;
+    padding-block: 20px; border-bottom: 1px solid var(--line); text-decoration: none;
+  }
+  .thumb { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; }
+  .texto { display: grid; gap: 4px; min-width: 0; }
+  h3 { margin: 0; font-size: 1.2rem; font-weight: 600; line-height: 1.3; }
+  p { margin: 0; color: var(--muted); font-size: .98rem; }
+  .flecha { color: var(--flood); font-size: 1.3rem; transition: transform .2s ease; }
+  .noticia:hover h3 { color: var(--flood); }
+  .noticia:hover .flecha { transform: translateX(4px); }
+  @media (max-width: 600px) {
+    .noticia { grid-template-columns: 96px 1fr; gap: 16px; }
+    .flecha, p { display: none; }
+    h3 { font-size: 1.05rem; }
+  }
+</style>

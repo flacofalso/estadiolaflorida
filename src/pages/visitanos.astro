@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Visítanos" description="Cómo llegar, accesos, reglamento y contacto del Estadio Bicentenario Municipal de La Florida.">
+  <section class="bloque">
+    <div class="wrap">
+      <span class="label">Planifica tu visita</span>
+      <h1 class="titulo-seccion grande">Visítanos</h1>
+
+      <div class="secciones">
+        <section id="como-llegar" class="c-amarillo">
+          <h2>Cómo llegar</h2>
+          <div class="prosa">
+            <p><strong>Dirección:</strong> por confirmar, La Florida, Región Metropolitana.</p>
+            <p><strong>Transporte público:</strong> estaciones de Metro y recorridos cercanos por confirmar.</p>
+            <p><strong>Estacionamientos:</strong> disponibilidad según cada evento.</p>
+            <p><a class="btn" href="https://www.google.com/maps/search/Estadio+Bicentenario+Municipal+de+La+Florida" target="_blank" rel="noopener">Abrir en Google Maps</a></p>
+          </div>
+        </section>
+
+        <section id="accesos" class="c-terracota">
+          <h2>Accesos y horarios</h2>
+          <div class="prosa">
+            <p>Los accesos habilitados y la hora de apertura de puertas se informan en la ficha de cada evento.</p>
+            <p>Horario de atención del recinto: por confirmar.</p>
+          </div>
+        </section>
+
+        <section id="reglamento" class="c-verde">
+          <h2>Qué puedes ingresar</h2>
+          <div class="prosa">
+            <p>Listado por completar con el reglamento del recinto. Por ejemplo:</p>
+            <ul>
+              <li>No se permite el ingreso de envases de vidrio.</li>
+              <li>No se permite el ingreso de bengalas ni fuegos artificiales.</li>
+              <li>Los objetos permitidos pueden variar según el tipo de evento.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="contacto" class="c-azul">
+          <h2>Contacto y arriendo</h2>
+          <div class="prosa">
+            <p>Clubes, colegios y organizaciones que quieran usar el estadio pueden solicitarlo a la Municipalidad.</p>
+            <p><strong>Correo:</strong> por confirmar<br /><strong>Teléfono:</strong> por confirmar</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .grande { font-size: clamp(3rem, 9vw, 6rem); margin: 6px 0 36px; }
+  .secciones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .secciones section {
+    background: var(--surface); border-radius: var(--radius); border-top: 4px solid var(--c);
+    padding: 28px; scroll-margin-top: 100px; min-width: 0;
+  }
+  h2 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 2rem; line-height: 1; margin: 0 0 16px; color: var(--c); }
+  .prosa p:last-child { margin-bottom: 0; }
+  @media (max-width: 760px) { .secciones { grid-template-columns: 1fr; } }
+</style>

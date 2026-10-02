@@ -1,0 +1,45 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import YouTube from '../../components/YouTube.astro';
+import Galeria from '../../components/Galeria.astro';
+import { url, fechaLarga } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const noticias = await getCollection('noticias', ({ data }) => !data.borrador);
+  return noticias.map((noticia) => ({ params: { id: noticia.id }, props: { noticia } }));
+}
+const { noticia } = Astro.props;
+const d = noticia.data;
+const { Content } = await render(noticia);
+---
+<Base title={d.titulo} description={d.resumen} image={d.portada.src}>
+  <article class="wrap nota">
+    <a class="mas" href={url('/noticias/')}>← Noticias</a>
+    <header>
+      <time class="label" datetime={d.fecha.toISOString().slice(0, 10)}>{fechaLarga(d.fecha)}</time>
+      <h1>{d.titulo}</h1>
+      <p class="resumen">{d.resumen}</p>
+    </header>
+    <Image class="portada" src={d.portada} alt="" widths={[800, 1400, 2000]} sizes="(max-width: 1100px) 100vw, 1100px" quality={82} format="webp" loading="eager" fetchpriority="high" />
+    <div class="prosa"><Content /></div>
+
+    {d.youtube && <div class="bloque-extra"><YouTube video={d.youtube} titulo={d.titulo} /></div>}
+    {d.galeria.length > 0 && (
+      <div class="bloque-extra">
+        <h2 class="titulo-seccion">Galería</h2>
+        <Galeria fotos={d.galeria} titulo={d.titulo} />
+      </div>
+    )}
+  </article>
+</Base>
+
+<style>
+  .nota { max-width: 1100px; padding-block: 48px 24px; display: grid; gap: 28px; justify-items: start; }
+  header { display: grid; gap: 10px; }
+  h1 { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: clamp(2.2rem, 6vw, 4.4rem); line-height: .92; margin: 0; max-width: 20ch; }
+  .resumen { font-size: 1.25rem; color: #dfe4da; margin: 0; max-width: 56ch; }
+  .portada { width: 100%; border-radius: var(--radius); }
+  .bloque-extra { width: 100%; display: grid; gap: 20px; margin-top: 16px; }
+</style>

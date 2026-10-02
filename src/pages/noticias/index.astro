@@ -1,0 +1,22 @@
+---
+import Base from '../../layouts/Base.astro';
+import NoticiaItem from '../../components/NoticiaItem.astro';
+import { noticiasOrdenadas } from '../../lib/contenido';
+const noticias = await noticiasOrdenadas();
+---
+<Base title="Noticias" description="Noticias del Estadio Bicentenario Municipal de La Florida.">
+  <section class="bloque">
+    <div class="wrap">
+      <span class="label">Novedades</span>
+      <h1 class="titulo-seccion grande">Noticias</h1>
+      <div class="lista">
+        {noticias.map((n) => <NoticiaItem noticia={n} />)}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .grande { font-size: clamp(3rem, 9vw, 6rem); margin: 6px 0 36px; }
+  .lista { border-top: 1px solid var(--line); }
+</style>

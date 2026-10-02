@@ -1,0 +1,134 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props { fotos: ImageMetadata[]; titulo: string }
+const { fotos, titulo } = Astro.props;
+
+// Galería en alta calidad: miniaturas livianas en la grilla y, al abrir,
+// versiones grandes (hasta 2560 px) con poca compresión.
+const ANCHOS = [1280, 1920, 2560];
+const grandes = await Promise.all(
+  fotos.map(async (f) => {
+    const anchos = ANCHOS.filter((w) => w <= f.width);
+    if (anchos.length === 0) anchos.push(f.width);
+    const versiones = await Promise.all(anchos.map((w) => getImage({ src: f, width: w, format: 'webp', quality: 88 })));
+    return {
+      srcset: versiones.map((v, i) => `${v.src} ${anchos[i]}w`).join(', '),
+      src: versiones[versiones.length - 1].src,
+      w: f.width,
+      h: f.height,
+    };
+  })
+);
+---
+{fotos.length > 0 && (
+  <div class="galeria" data-galeria>
+    <ul class="grilla">
+      {fotos.map((f, i) => (
+        <li>
+          <button type="button" data-abrir={i} aria-label={`Ver foto ${i + 1} de ${fotos.length}`}>
+            <Image src={f} alt={`${titulo}, foto ${i + 1}`} widths={[480, 800, 1200]} sizes="(max-width: 700px) 50vw, 400px" quality={80} format="webp" loading="lazy" decoding="async" />
+          </button>
+        </li>
+      ))}
+    </ul>
+
+    <dialog class="visor" data-visor aria-label={`Fotos: ${titulo}`}>
+      <div class="barra">
+        <span class="contador" data-contador></span>
+        <a class="abrir" data-original target="_blank" rel="noopener">Abrir en tamaño completo</a>
+        <button type="button" class="cerrar" data-cerrar aria-label="Cerrar">✕</button>
+      </div>
+      <div class="lienzo">
+        <button type="button" class="nav ant" data-ant aria-label="Foto anterior">‹</button>
+        <img data-img alt="" />
+        <button type="button" class="nav sig" data-sig aria-label="Foto siguiente">›</button>
+      </div>
+      <script type="application/json" data-fotos set:html={JSON.stringify(grandes.map((g, i) => ({ ...g, alt: `${titulo}, foto ${i + 1}` })))}></script>
+    </dialog>
+  </div>
+)}
+
+<style>
+  .grilla { list-style: none; margin: 0; padding: 0; columns: 3 260px; column-gap: 10px; }
+  .grilla li { break-inside: avoid; margin-bottom: 10px; }
+  .grilla button {
+    display: block; width: 100%; padding: 0; border: 0; background: var(--surface);
+    border-radius: 4px; overflow: hidden; cursor: zoom-in;
+  }
+  .grilla img { width: 100%; height: auto; transition: transform .4s ease; }
+  .grilla button:hover img { transform: scale(1.03); }
+  @media (max-width: 560px) { .grilla { columns: 2; column-gap: 6px; } .grilla li { margin-bottom: 6px; } }
+
+  .visor {
+    width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0;
+    border: 0; background: #040705; color: var(--fg);
+  }
+  .visor[open] { display: grid; grid-template-rows: auto 1fr; }
+  .visor::backdrop { background: rgba(0,0,0,.8); }
+  .barra {
+    display: flex; align-items: center; gap: 16px; justify-content: space-between;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) var(--gutter) 10px;
+    font-family: var(--label); letter-spacing: .1em; text-transform: uppercase; font-size: .85rem;
+  }
+  .contador { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .abrir { color: var(--flood); text-decoration: none; margin-left: auto; }
+  .cerrar, .nav {
+    background: rgba(255,255,255,.06); border: 1px solid var(--line); color: var(--fg);
+    border-radius: 999px; cursor: pointer; display: grid; place-items: center;
+  }
+  .cerrar { width: 44px; height: 44px; font-size: 1.1rem; }
+  .lienzo { position: relative; display: grid; place-items: center; min-height: 0; padding: 0 var(--gutter) calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .lienzo img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; touch-action: pan-y; }
+  .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 52px; height: 52px; font-size: 2rem; line-height: 1; }
+  .ant { left: max(8px, calc(var(--gutter) - 26px)); }
+  .sig { right: max(8px, calc(var(--gutter) - 26px)); }
+  @media (max-width: 700px) { .nav { display: none; } .abrir { display: none; } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-galeria]').forEach((g) => {
+    const visor = g.querySelector<HTMLDialogElement>('[data-visor]')!;
+    const img = g.querySelector<HTMLImageElement>('[data-img]')!;
+    const contador = g.querySelector<HTMLElement>('[data-contador]')!;
+    const original = g.querySelector<HTMLAnchorElement>('[data-original]')!;
+    const fotos: { srcset: string; src: string; w: number; h: number; alt: string }[] =
+      JSON.parse(g.querySelector('[data-fotos]')!.textContent || '[]');
+    let actual = 0;
+
+    const mostrar = (i: number) => {
+      actual = (i + fotos.length) % fotos.length;
+      const f = fotos[actual];
+      img.srcset = f.srcset; img.sizes = '100vw'; img.src = f.src; img.alt = f.alt;
+      img.width = f.w; img.height = f.h;
+      contador.textContent = `${actual + 1} / ${fotos.length}`;
+      original.href = f.src;
+      // precarga la siguiente
+      const sig = fotos[(actual + 1) % fotos.length];
+      const pre = new Image(); pre.sizes = '100vw'; pre.srcset = sig.srcset;
+    };
+
+    g.querySelectorAll<HTMLButtonElement>('[data-abrir]').forEach((b) =>
+      b.addEventListener('click', () => { mostrar(Number(b.dataset.abrir)); visor.showModal(); })
+    );
+    g.querySelector('[data-cerrar]')!.addEventListener('click', () => visor.close());
+    g.querySelector('[data-ant]')!.addEventListener('click', () => mostrar(actual - 1));
+    g.querySelector('[data-sig]')!.addEventListener('click', () => mostrar(actual + 1));
+    visor.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') mostrar(actual + 1);
+      if (e.key === 'ArrowLeft') mostrar(actual - 1);
+    });
+    visor.addEventListener('click', (e) => { if (e.target === visor) visor.close(); });
+
+    // Deslizar en celulares
+    let x0: number | null = null;
+    img.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    img.addEventListener('touchend', (e) => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) mostrar(actual + (dx < 0 ? 1 : -1));
+      x0 = null;
+    });
+  });
+</script>

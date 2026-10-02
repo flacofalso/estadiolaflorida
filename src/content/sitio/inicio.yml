@@ -1,0 +1,16 @@
+titulo: Arena La Florida
+bajada: Conciertos, fútbol, cultura y eventos municipales para todos los vecinos de La Florida.
+poster: ../../assets/fotos/portada/hero-poster.jpg
+recorrido_titulo: Recorre el estadio
+recorrido:
+  - ../../assets/fotos/recorrido/recorrido-01.jpg
+  - ../../assets/fotos/recorrido/recorrido-02.jpg
+  - ../../assets/fotos/recorrido/recorrido-03.jpg
+  - ../../assets/fotos/recorrido/recorrido-04.jpg
+  - ../../assets/fotos/recorrido/recorrido-05.jpg
+  - ../../assets/fotos/recorrido/recorrido-06.jpg
+  - ../../assets/fotos/recorrido/recorrido-07.jpg
+  - ../../assets/fotos/recorrido/recorrido-08.jpg
+  - ../../assets/fotos/recorrido/recorrido-09.jpg
+  - ../../assets/fotos/recorrido/recorrido-10.jpg
+video_destacado: ''
