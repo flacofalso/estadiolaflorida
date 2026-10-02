@@ -1,0 +1,189 @@
+# Configuración del panel (Pages CMS: https://app.pagescms.org)
+# Las fotos se guardan en src/assets/fotos y el sitio las optimiza al publicar.
+
+media:
+  - name: fotos
+    label: Fotos
+    input: src/assets/fotos
+    output: ../../assets/fotos
+    rename: safe
+    extensions: [jpg, jpeg, png, webp]
+
+content:
+  - name: noticias
+    label: Noticias
+    type: collection
+    path: src/content/noticias
+    filename: "{year}-{month}-{day}-{primary}.md"
+    format: yaml-frontmatter
+    view:
+      fields: [titulo, fecha]
+      primary: titulo
+      sort: [fecha]
+      default:
+        sort: fecha
+        order: desc
+    fields:
+      - name: titulo
+        label: Título
+        type: string
+        required: true
+      - name: fecha
+        label: Fecha
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: resumen
+        label: Bajada
+        description: Una o dos líneas. Aparece en las tarjetas y al compartir en redes.
+        type: text
+        required: true
+      - name: portada
+        label: Foto principal
+        description: Horizontal, idealmente 2000 px de ancho o más.
+        type: image
+        required: true
+        options:
+          media: fotos
+          path: src/assets/fotos/noticias
+      - name: youtube
+        label: Video de YouTube (opcional)
+        description: Pega el enlace del video del canal municipal.
+        type: string
+      - name: galeria
+        label: Galería (opcional)
+        type: image
+        options:
+          media: fotos
+          path: src/assets/fotos/noticias
+          multiple:
+            max: 60
+      - name: borrador
+        label: Guardar como borrador (no se publica)
+        type: boolean
+        default: false
+      - name: body
+        label: Texto de la noticia
+        type: rich-text
+        options:
+          format: markdown
+          media: fotos
+          path: src/assets/fotos/noticias
+
+  - name: eventos
+    label: Eventos
+    type: collection
+    path: src/content/eventos
+    filename: "{fields.fecha}-{primary}.md"
+    format: yaml-frontmatter
+    view:
+      fields: [titulo, fecha, categoria]
+      primary: titulo
+      sort: [fecha]
+      default:
+        sort: fecha
+        order: desc
+    fields:
+      - name: titulo
+        label: Nombre del evento
+        type: string
+        required: true
+      - name: fecha
+        label: Fecha
+        description: Usa la fecha del evento (no la de publicación). El sitio ordena próximos y realizados con ella.
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: hora
+        label: Hora (ej. 20:00)
+        type: string
+        pattern: ^([01]\d|2[0-3]):[0-5]\d$
+      - name: categoria
+        label: Categoría
+        type: select
+        required: true
+        options:
+          values: [Concierto, Fútbol, Cultura, Deporte, Municipal]
+      - name: resumen
+        label: Bajada
+        type: text
+        required: true
+      - name: portada
+        label: Foto principal
+        type: image
+        required: true
+        options:
+          media: fotos
+          path: src/assets/fotos/eventos
+      - name: gratuito
+        label: Entrada liberada
+        type: boolean
+        default: true
+      - name: entradas
+        label: Enlace de venta de entradas (opcional)
+        type: string
+      - name: youtube
+        label: Video de YouTube (opcional)
+        type: string
+      - name: galeria
+        label: Galería en alta calidad
+        description: Sube las fotos del evento una vez realizado. Se muestran en mosaico y en pantalla completa.
+        type: image
+        options:
+          media: fotos
+          path: src/assets/fotos/eventos
+          multiple:
+            max: 120
+      - name: borrador
+        label: Guardar como borrador (no se publica)
+        type: boolean
+        default: false
+      - name: body
+        label: Descripción
+        type: rich-text
+        options:
+          format: markdown
+          media: fotos
+          path: src/assets/fotos/eventos
+
+  - name: inicio
+    label: Portada
+    type: file
+    path: src/content/sitio/inicio.yml
+    format: yaml
+    fields:
+      - name: titulo
+        label: Título principal
+        type: string
+        required: true
+      - name: bajada
+        label: Bajada
+        type: text
+        required: true
+      - name: poster
+        label: Foto de respaldo del video
+        description: Se muestra mientras carga el clip, o si no hay clip.
+        type: image
+        required: true
+        options:
+          media: fotos
+          path: src/assets/fotos/portada
+      - name: recorrido_titulo
+        label: Título del recorrido de fotos
+        type: string
+      - name: recorrido
+        label: Fotos del recorrido (entre 4 y 14)
+        description: Pasan rápido al hacer scroll; no necesitan ser de alta resolución.
+        type: image
+        required: true
+        options:
+          media: fotos
+          path: src/assets/fotos/recorrido
+          multiple:
+            min: 4
+            max: 14
+      - name: video_destacado
+        label: Video destacado en portada (opcional)
+        type: string
